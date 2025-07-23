@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LibraryManager.API
+namespace LibraryManager.API.Dtos
 {
     public class UpdateBookDto
     {
