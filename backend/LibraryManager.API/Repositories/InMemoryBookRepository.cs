@@ -4,7 +4,7 @@ namespace LibraryManager.API.Repositories
 {
     public class InMemoryBookRepository : IBookRepository
     {
-        private readonly List<Book> _books = new();
+        private static readonly List<Book> _books = new();
 
         public IEnumerable<Book> GetAll(string? title = null, int? authorId = null)
         {
@@ -40,5 +40,8 @@ namespace LibraryManager.API.Repositories
                 _books.Remove(book);
             }
         }
+
+        // For testing purposes, clear the repository
+        public void Clear() => _books.Clear();
     }
 }
