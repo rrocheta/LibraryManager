@@ -1,5 +1,4 @@
-﻿using LibraryManager.API.Data;
-using LibraryManager.API.Dtos;
+﻿using LibraryManager.API.Dtos;
 using LibraryManager.API.Models;
 using LibraryManager.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -26,10 +25,8 @@ namespace LibraryManager.API.Controllers
             {
                 Id = book.Id,
                 Title = book.Title,
-                AuthorId = book.AuthorId,
-                AuthorName = StaticData.Authors.FirstOrDefault(a => a.Id == book.AuthorId)?.Name ?? "Unknown",
-                PublisherId = book.PublisherId,
-                PublisherName = StaticData.Publishers.FirstOrDefault(p => p.Id == book.PublisherId)?.Name ?? "Unknown",
+                Author = new AuthorDto { Id = book.Author.Id, Name = book.Author.Name},
+                Publisher = new PublisherDto { Id = book.Publisher.Id, Name = book.Publisher.Name},
                 IsBorrowed = book.IsBorrowed
             });
 
@@ -48,17 +45,15 @@ namespace LibraryManager.API.Controllers
             {
                 Id = book.Id,
                 Title = book.Title,
-                AuthorId = book.AuthorId,
-                AuthorName = StaticData.Authors.FirstOrDefault(a => a.Id == book.AuthorId)?.Name ?? "Unknown",
-                PublisherId = book.PublisherId,
-                PublisherName = StaticData.Publishers.FirstOrDefault(p => p.Id == book.PublisherId)?.Name ?? "Unknown",
+                Author = new AuthorDto { Id = book.Author.Id, Name = book.Author.Name },
+                Publisher = new PublisherDto { Id = book.Publisher.Id, Name = book.Publisher.Name },
                 IsBorrowed = book.IsBorrowed
             };
             return Ok(result);
         }
 
         [HttpPost]
-        public ActionResult<BookDto> Create([FromBody] BookDto bookDto)
+        public ActionResult<BookDto> Create([FromBody] CreateBookDto bookDto)
         {
             if (bookDto == null || string.IsNullOrWhiteSpace(bookDto.Title))
             {
@@ -96,8 +91,8 @@ namespace LibraryManager.API.Controllers
             }
 
             existingBook.Title = bookDto.Title;
-            existingBook.AuthorId = bookDto.AuthorId;
-            existingBook.PublisherId = bookDto.PublisherId;
+            existingBook.AuthorId = bookDto.Author.Id;
+            existingBook.PublisherId = bookDto.Publisher.Id;
             _repository.Update(existingBook);
 
             return NoContent();

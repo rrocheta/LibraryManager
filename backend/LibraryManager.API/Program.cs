@@ -1,4 +1,7 @@
 
+using LibraryManager.API.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace LibraryManager.API
 {
     public class Program
@@ -8,12 +11,17 @@ namespace LibraryManager.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddSingleton<Repositories.IBookRepository, Repositories.InMemoryBookRepository>();
+            builder.Services.AddScoped<Repositories.IBookRepository, Repositories.BookRepository>();
+            builder.Services.AddScoped<Repositories.IAuthorRepository, Repositories.AuthorRepository>();
+            builder.Services.AddScoped<Repositories.IPublisherRepository, Repositories.PublisherRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseInMemoryDatabase("LibraryDb"));
 
             var app = builder.Build();
 
@@ -28,8 +36,39 @@ namespace LibraryManager.API
 
             app.UseAuthorization();
 
-
             app.MapControllers();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                if (!context.Authors.Any())
+                {
+                    context.Authors.AddRange(
+                        new Author { Id = 1, Name = "Fernando Pessoa" },
+                        new Author { Id = 2, Name = "Hernandes Dias Lopes" },
+                        new Author { Id = 3, Name = "Reinhard Bonnke" }
+                    );
+                }
+
+                if (!context.Publishers.Any())
+                {
+                    context.Publishers.AddRange(
+                        new Publisher { Id = 1, Name = "Porto Editora" },
+                        new Publisher { Id = 2, Name = "Hagnos" },
+                        new Publisher { Id = 3, Name = "CPAD" }
+                    );
+                }
+
+                context.SaveChanges();
+            }
+
+            // TODO docker
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            //    db.Database.Migrate();
+            //}
 
             app.Run();
         }

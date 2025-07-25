@@ -2,7 +2,7 @@
 
 namespace LibraryManager.API.Repositories
 {
-    public class InMemoryBookRepository : IBookRepository
+    public class BookRepository : IBookRepository
     {
         private static readonly List<Book> _books = new();
 
