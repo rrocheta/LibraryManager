@@ -1,47 +1,78 @@
 ﻿using LibraryManager.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManager.API.Repositories
 {
     public class BookRepository : IBookRepository
     {
-        private static readonly List<Book> _books = new();
+
+        private readonly AppDbContext _dbContext;
+        //private static readonly List<Book> _books = new();
+
+        public BookRepository(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
         public IEnumerable<Book> GetAll(string? title = null, int? authorId = null)
         {
-            return _books.Where(b =>
-                (string.IsNullOrWhiteSpace(title) || b.Title.Contains(title, StringComparison.OrdinalIgnoreCase)) &&
-                (!authorId.HasValue || b.AuthorId == authorId.Value));
+            var query = _dbContext.Books
+                .Include(b => b.Author)
+                .Include(b => b.Publisher)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(title))
+                query = query.Where(b => b.Title.Contains(title));
+
+            if (authorId.HasValue)
+                query = query.Where(b => b.AuthorId == authorId.Value);
+
+            return query.ToList();
         }
 
         public Book? GetById(Guid id)
         {
-            return _books.FirstOrDefault(b => b.Id == id);
+            return _dbContext.Books
+                .Include(b => b.Author)
+                .Include(b => b.Publisher)
+                .FirstOrDefault(b => b.Id == id);
         }
 
         public void Add(Book book)
         {
-            _books.Add(book);
+            book.Id = Guid.NewGuid();
+            _dbContext.Books.Add(book);
+            _dbContext.SaveChanges();
         }
 
         public void Update(Book book)
         {
-            var index = _books.FindIndex(b => b.Id == book.Id);
-            if (index >= 0)
+            var existingBook = _dbContext.Books.Find(book.Id);
+            if (existingBook != null)
             {
-                _books[index] = book;
+                existingBook.Title = book.Title;
+                existingBook.AuthorId = book.AuthorId;
+                existingBook.PublisherId = book.PublisherId;
+                existingBook.IsBorrowed = book.IsBorrowed;
+                _dbContext.SaveChanges();
             }
         }
 
         public void Remove(Guid id)
         {
-            var book = GetById(id);
+            var book = _dbContext.Books.Find(id);
             if (book != null)
             {
-                _books.Remove(book);
+                _dbContext.Books.Remove(book);
+                _dbContext.SaveChanges();
             }
         }
 
         // For testing purposes, clear the repository
-        public void Clear() => _books.Clear();
+        public void Clear()
+        {
+            _dbContext.Books.RemoveRange(_dbContext.Books);
+            _dbContext.SaveChanges();
+        }
     }
 }
