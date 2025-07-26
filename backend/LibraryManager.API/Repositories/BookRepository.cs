@@ -7,7 +7,6 @@ namespace LibraryManager.API.Repositories
     {
 
         private readonly AppDbContext _dbContext;
-        //private static readonly List<Book> _books = new();
 
         public BookRepository(AppDbContext dbContext)
         {
@@ -38,11 +37,13 @@ namespace LibraryManager.API.Repositories
                 .FirstOrDefault(b => b.Id == id);
         }
 
-        public void Add(Book book)
+        public Book Add(Book book)
         {
             book.Id = Guid.NewGuid();
             _dbContext.Books.Add(book);
             _dbContext.SaveChanges();
+
+            return book;
         }
 
         public void Update(Book book)

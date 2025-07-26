@@ -36,11 +36,13 @@ namespace LibraryManager.API.Controllers
         [HttpGet("{id}")]
         public ActionResult<BookDto> GetById(Guid id)
         {
+            if (id == Guid.Empty)
+                return BadRequest();
+
             var book = _repository.GetById(id);
             if (book == null)
-            {
                 return NotFound();
-            }
+
             var result = new BookDto
             {
                 Id = book.Id,
@@ -59,17 +61,26 @@ namespace LibraryManager.API.Controllers
             {
                 return BadRequest("Invalid book data.");
             }
-            var book = new Book
+
+            var createdBook = _repository.Add(new Book
             {
                 Id = Guid.NewGuid(),
                 Title = bookDto.Title,
                 AuthorId = bookDto.AuthorId,
                 PublisherId = bookDto.PublisherId,
                 IsBorrowed = false
-            };
-            _repository.Add(book);
+            });
 
-            return CreatedAtAction(nameof(GetById), new { id = book.Id }, bookDto);
+            var mappedBookDto = new BookDto
+            {
+                Id = createdBook.Id,
+                Title = createdBook.Title,
+                Author = new AuthorDto { Id = createdBook.AuthorId, Name = createdBook.Author.Name },
+                Publisher = new PublisherDto { Id = createdBook.PublisherId, Name = createdBook.Publisher.Name },
+                IsBorrowed = createdBook.IsBorrowed
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = createdBook.Id }, mappedBookDto);
         }
 
         [HttpPut("{id}")]

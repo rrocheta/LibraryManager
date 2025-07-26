@@ -6,7 +6,7 @@ namespace LibraryManager.API.Repositories
     {
         IEnumerable<Book> GetAll(string? title = null, int? authorId = null);
         Book? GetById(Guid id);
-        void Add(Book book);
+        Book Add(Book book);
         void Update(Book book);
         void Remove(Guid id);
     }
