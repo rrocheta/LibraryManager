@@ -51,6 +51,8 @@ namespace LibraryManager.API
 
             app.UseHttpsRedirection();
 
+            app.UseCors("AllowReactApp");
+
             app.UseAuthorization();
 
             app.MapControllers();

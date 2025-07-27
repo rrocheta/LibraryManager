@@ -9,7 +9,7 @@ export default function BooksList() {
     fetch("http://localhost:8080/api/books")
       .then((res) => {
         if (!res.ok) {
-          throw new Error("Erro ao buscar livros");
+          throw new Error("Error fetching books: " + res.statusText);
         }
         return res.json();
       })
@@ -23,18 +23,18 @@ export default function BooksList() {
       });
   }, []);
 
-  if (loading) return <div>Carregando livros...</div>;
-  if (error) return <div>Erro: {error}</div>;
+  if (loading) return <div>Loading books...</div>;
+  if (error) return <div>Error: {error}</div>;
 
-  if (books.length === 0) return <div>Nenhum livro encontrado.</div>;
+  if (books.length === 0) return <div>No books found.</div>;
 
   return (
     <div>
-      <h2>Lista de Livros</h2>
+      <h2>Books List</h2>
       <ul>
         {books.map((book) => (
           <li key={book.id}>
-            <strong>{book.title}</strong> — Autor: {book.authorName} — Editora: {book.publisherName}
+            <strong>{book.title}</strong> — Author: {book.authorName} — Publisher: {book.publisherName}
           </li>
         ))}
       </ul>
