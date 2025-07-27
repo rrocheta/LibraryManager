@@ -10,6 +10,8 @@ namespace LibraryManager.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            var enableSwagger = builder.Configuration.GetValue<bool>("AppSettings:EnableSwagger");
+
             // Add services to the container.
             builder.Services.AddScoped<Repositories.IBookRepository, Repositories.BookRepository>();
             builder.Services.AddScoped<Repositories.IAuthorRepository, Repositories.AuthorRepository>();
@@ -25,11 +27,15 @@ namespace LibraryManager.API
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+
+            if (enableSwagger)
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LibraryManager API V1");
+                    c.RoutePrefix = "swagger";
+                });
             }
 
             app.UseHttpsRedirection();
