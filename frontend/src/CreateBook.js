@@ -16,7 +16,7 @@ export default function CreateBook() {
 
   // Fetch Authors
   useEffect(() => {
-    fetch("http://localhost:8080/api/Author")
+    fetch("http://localhost:8080/api/Authors")
       .then(res => res.json())
       .then(data => {
         setAuthors(data);
@@ -30,7 +30,7 @@ export default function CreateBook() {
 
   // Fetch publishers
   useEffect(() => {
-    fetch("http://localhost:8080/api/Publisher")
+    fetch("http://localhost:8080/api/Publishers")
       .then(res => res.json())
       .then(data => {
         setPublishers(data);
