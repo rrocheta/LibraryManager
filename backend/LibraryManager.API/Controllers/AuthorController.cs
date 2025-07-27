@@ -17,7 +17,7 @@ namespace LibraryManager.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Author>> GetAll()
+        public ActionResult<IEnumerable<Author>> GetAll(string? name = null)
         {
             var authors = _authorRepository.GetAll();
             if (authors == null || !authors.Any())
