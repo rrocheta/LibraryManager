@@ -25,8 +25,19 @@ namespace LibraryManager.API
             builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseInMemoryDatabase("LibraryDb"));
 
-            var app = builder.Build();
+            // CORS policy to allow React app
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:3000")
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
 
+            var app = builder.Build();
 
             if (enableSwagger)
             {
