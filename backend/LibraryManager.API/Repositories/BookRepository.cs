@@ -39,7 +39,8 @@ namespace LibraryManager.API.Repositories
 
         public Book Add(Book book)
         {
-            book.Id = Guid.NewGuid();
+            if (book.Id == Guid.Empty)
+                book.Id = Guid.NewGuid();
             _dbContext.Books.Add(book);
             _dbContext.SaveChanges();
 

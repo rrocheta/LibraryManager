@@ -7,11 +7,11 @@ namespace LibraryManager.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AuthorController : Controller
+    public class AuthorsController : Controller
     {
         private readonly IAuthorRepository _authorRepository;
 
-        public AuthorController( IAuthorRepository authorRepository)
+        public AuthorsController( IAuthorRepository authorRepository)
         {
             _authorRepository = authorRepository;
         }

@@ -11,13 +11,13 @@ namespace LibraryManager.API.Tests.Controllers
     public class AuthorControllerTest
     {
         private readonly Mock<IAuthorRepository> _mockRepository;
-        private readonly AuthorController _controller;
+        private readonly AuthorsController _controller;
         private readonly Fixture _fixture;
 
         public AuthorControllerTest()
         {
             _mockRepository = new Mock<IAuthorRepository>();
-            _controller = new AuthorController(_mockRepository.Object);
+            _controller = new AuthorsController(_mockRepository.Object);
             _fixture = new Fixture();
 
             // Customize to avoid recursion (since Author may reference Books and Book may reference Authors, etc)

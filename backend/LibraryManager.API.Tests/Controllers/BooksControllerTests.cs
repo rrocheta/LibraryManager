@@ -158,9 +158,28 @@ namespace LibraryManager.API.Tests.Controllers
             // Arrange
             var bookDto = _fixture.Create<CreateBookDto>();
 
-            var book = _fixture.Create<Book>();
+            var author = _fixture.Build<Author>()
+                                 .With(a => a.Id, 1)
+                                 .With(a => a.Name, "Author Test")
+                                 .Create();
+
+            var publisher = _fixture.Build<Publisher>()
+                                    .With(p => p.Id, 1)
+                                    .With(p => p.Name, "Publisher Test")
+                                    .Create();
+
+            var book = _fixture.Build<Book>()
+                               .With(b => b.Id, Guid.NewGuid())
+                               .With(b => b.Title, bookDto.Title)
+                               .With(b => b.AuthorId, author.Id)
+                               .With(b => b.PublisherId, publisher.Id)
+                               .With(b => b.Author, author)
+                               .With(b => b.Publisher, publisher)
+                               .With(b => b.IsBorrowed, false)
+                               .Create();
 
             _mockRepository.Setup(x => x.Add(It.IsAny<Book>())).Returns(book);
+            _mockRepository.Setup(x => x.GetById(book.Id)).Returns(book);
 
             // Act
             var result = _controller.Create(bookDto);
@@ -169,7 +188,10 @@ namespace LibraryManager.API.Tests.Controllers
             var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
             var createdBook = Assert.IsType<BookDto>(createdResult.Value);
             Assert.Equal(book.Title, createdBook.Title);
+            Assert.Equal(author.Name, createdBook.Author.Name);
+            Assert.Equal(publisher.Name, createdBook.Publisher.Name);
         }
+
 
         [Fact]
         public void Create_WithInvalidBook_ReturnsBadRequest()

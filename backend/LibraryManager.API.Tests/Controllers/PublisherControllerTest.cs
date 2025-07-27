@@ -11,14 +11,14 @@ namespace LibraryManager.API.Tests.Controllers
     public class PublisherControllerTest
     {
         private readonly Mock<IPublisherRepository> _mockRepository;
-        private readonly PublisherController _controller;
+        private readonly PublishersController _controller;
         private readonly Fixture _fixture;
 
 
         public PublisherControllerTest()
         {
             _mockRepository = new Mock<IPublisherRepository>();
-            _controller = new PublisherController(_mockRepository.Object);
+            _controller = new PublishersController(_mockRepository.Object);
             _fixture = new Fixture();
 
             // Customize to avoid recursion (since Publisher references Books and Book can reference Publisher, etc)

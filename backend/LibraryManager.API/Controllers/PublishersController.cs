@@ -7,11 +7,11 @@ namespace LibraryManager.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PublisherController : ControllerBase
+    public class PublishersController : ControllerBase
     {
         private readonly IPublisherRepository _publisherRepository;
 
-        public PublisherController(IPublisherRepository publisherRepository)
+        public PublishersController(IPublisherRepository publisherRepository)
         {
             _publisherRepository = publisherRepository;
         }

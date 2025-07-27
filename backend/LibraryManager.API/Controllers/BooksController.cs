@@ -71,16 +71,26 @@ namespace LibraryManager.API.Controllers
                 IsBorrowed = false
             });
 
+            var bookWithDetails = _repository.GetById(createdBook.Id);
+
+            if (bookWithDetails == null)
+            {
+                return NotFound();
+            }
+
+            var author = bookWithDetails.Author ?? new Author { Id = 0, Name = "Unknown" };
+            var publisher = bookWithDetails.Publisher ?? new Publisher { Id = 0, Name = "Unknown" };
+
             var mappedBookDto = new BookDto
             {
-                Id = createdBook.Id,
-                Title = createdBook.Title,
-                Author = new AuthorDto { Id = createdBook.AuthorId, Name = createdBook.Author.Name },
-                Publisher = new PublisherDto { Id = createdBook.PublisherId, Name = createdBook.Publisher.Name },
-                IsBorrowed = createdBook.IsBorrowed
+                Id = bookWithDetails.Id,
+                Title = bookWithDetails.Title,
+                Author = new AuthorDto { Id = author.Id, Name = author.Name },
+                Publisher = new PublisherDto { Id = publisher.Id, Name = publisher.Name },
+                IsBorrowed = bookWithDetails.IsBorrowed
             };
 
-            return CreatedAtAction(nameof(GetById), new { id = createdBook.Id }, mappedBookDto);
+            return CreatedAtAction(nameof(GetById), new { id = bookWithDetails.Id }, mappedBookDto);
         }
 
         [HttpPut("{id}")]
