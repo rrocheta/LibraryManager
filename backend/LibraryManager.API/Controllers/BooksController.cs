@@ -17,16 +17,16 @@ namespace LibraryManager.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<BookDto>> GetAll([FromQuery] string? title, [FromQuery] int? authorId)
+        public ActionResult<IEnumerable<BookDto>> GetAll([FromQuery] string? title, [FromQuery] int? authorId, [FromQuery] bool? isBorrowed)
         {
-            var books = _repository.GetAll(title, authorId);
+            var books = _repository.GetAll(title, authorId, isBorrowed);
 
             var result = books.Select(book => new BookDto
             {
                 Id = book.Id,
                 Title = book.Title,
-                Author = new AuthorDto { Id = book.Author.Id, Name = book.Author.Name},
-                Publisher = new PublisherDto { Id = book.Publisher.Id, Name = book.Publisher.Name},
+                Author = new AuthorDto { Id = book.Author.Id, Name = book.Author.Name },
+                Publisher = new PublisherDto { Id = book.Publisher.Id, Name = book.Publisher.Name },
                 IsBorrowed = book.IsBorrowed
             });
 

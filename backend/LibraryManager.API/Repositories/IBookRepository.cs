@@ -4,7 +4,7 @@ namespace LibraryManager.API.Repositories
 {
     public interface IBookRepository
     {
-        IEnumerable<Book> GetAll(string? title = null, int? authorId = null);
+        IEnumerable<Book> GetAll(string? title = null, int? authorId = null, bool? isBorrowed = null);
         Book? GetById(Guid id);
         Book Add(Book book);
         void Update(Book book);

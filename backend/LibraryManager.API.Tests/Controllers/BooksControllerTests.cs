@@ -43,10 +43,10 @@ namespace LibraryManager.API.Tests.Controllers
                 .Create();
 
             var books = new List<Book> { book1, book2 };
-            _mockRepository.Setup(r => r.GetAll(null, null)).Returns(books);
+            _mockRepository.Setup(r => r.GetAll(null, null, null)).Returns(books);
 
             // Act
-            var actionResult = _controller.GetAll(null, null);
+            var actionResult = _controller.GetAll(null, null, null);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
@@ -65,45 +65,52 @@ namespace LibraryManager.API.Tests.Controllers
         public void GetAll_WithTitleOrAuthorId_ReturnsFilteredBooks()
         {
             // Arrange
-            var allBooks = _fixture.Build<Book>()
+            var filteredBook = _fixture.Build<Book>()
                 .With(b => b.Title, "Special Title")
                 .With(b => b.AuthorId, 99)
+                .With(b => b.IsBorrowed, false)
                 .With(b => b.Author, new Author { Id = 99, Name = "Filtered Author" })
-                .CreateMany(1)
-                .ToList();
+                .With(b => b.Publisher, new Publisher { Id = 1, Name = "Test Publisher" })
+                .Create();
 
-            allBooks.AddRange(_fixture.Build<Book>()
+            var otherBooks = _fixture.Build<Book>()
                 .With(b => b.Title, "Other Book")
                 .With(b => b.AuthorId, 1)
+                .With(b => b.IsBorrowed, false)
                 .Without(b => b.Author)
                 .Without(b => b.Publisher)
-                .CreateMany(2));
+                .CreateMany(2)
+                .ToList();
 
-            _mockRepository.Setup(r => r.GetAll("Special Title", 99))
+            var allBooks = new List<Book> { filteredBook };
+            allBooks.AddRange(otherBooks);
+
+            _mockRepository.Setup(r => r.GetAll("Special Title", 99, null))
                 .Returns(allBooks.Where(b => b.Title == "Special Title" && b.AuthorId == 99));
 
             // Act
-            var result = _controller.GetAll("Special Title", 99);
+            var result = _controller.GetAll("Special Title", 99, null);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var model = Assert.IsAssignableFrom<IEnumerable<BookDto>>(okResult.Value);
             var list = model.ToList();
 
-            Assert.Single(list); // Only one book matches both filters
+            Assert.Single(list);
             Assert.Equal("Special Title", list[0].Title);
             Assert.Equal("Filtered Author", list[0].Author.Name);
         }
+
 
         [Fact]
         public void GetAll_WithNoFilters_ReturnsAllBooks()
         {
             // Arrange
             var books = _fixture.CreateMany<Book>(3).ToList();
-            _mockRepository.Setup(r => r.GetAll(null, null)).Returns(books);
+            _mockRepository.Setup(r => r.GetAll(null, null, null)).Returns(books);
 
             // Act
-            var result = _controller.GetAll(null, null);
+            var result = _controller.GetAll(null, null, null);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result.Result);

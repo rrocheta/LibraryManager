@@ -1,18 +1,26 @@
-import React, { useState } from "react";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import BooksList from "./BooksList";
-import CreateBook from "./CreateBook";
+import BorrowBook from "./BorrowBook";
+import ReturnBook from "./ReturnBook";
+import CreateBook from "./CreateBook"; // ✅ IMPORTADO
 
 function App() {
-  const [showCreate, setShowCreate] = useState(false);
-
   return (
-    <div className="App">
-      <h1>Library Manager</h1>
-      <button onClick={() => setShowCreate(!showCreate)}>
-        {showCreate ? "Back to List" : "Add New Book"}
-      </button>
-      {showCreate ? <CreateBook onCreated={() => setShowCreate(false)} /> : <BooksList />}
-    </div>
+    <Router>
+      <nav>
+        <Link to="/">Books</Link> | 
+        <Link to="/borrow">Borrow Book</Link> | 
+        <Link to="/return">Return Book</Link> | 
+        <Link to="/create">Create Book</Link> {/* ✅ NOVO LINK */}
+      </nav>
+      <Routes>
+        <Route path="/" element={<BooksList />} />
+        <Route path="/borrow" element={<BorrowBook />} />
+        <Route path="/return" element={<ReturnBook />} />
+        <Route path="/create" element={<CreateBook />} /> {/* ✅ NOVA ROTA */}
+      </Routes>
+    </Router>
   );
 }
 

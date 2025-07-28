@@ -13,7 +13,7 @@ namespace LibraryManager.API.Repositories
             _dbContext = dbContext;
         }
 
-        public IEnumerable<Book> GetAll(string? title = null, int? authorId = null)
+        public IEnumerable<Book> GetAll(string? title = null, int? authorId = null, bool? isBorrowed = null)
         {
             var query = _dbContext.Books
                 .Include(b => b.Author)
@@ -25,6 +25,9 @@ namespace LibraryManager.API.Repositories
 
             if (authorId.HasValue)
                 query = query.Where(b => b.AuthorId == authorId.Value);
+
+            if (isBorrowed.HasValue)
+                query = query.Where(b => b.IsBorrowed == isBorrowed.Value);
 
             return query.ToList();
         }
