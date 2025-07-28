@@ -15,10 +15,11 @@ export default function BooksList() {
       })
       .then((data) => {
         setBooks(data);
-        setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
@@ -34,7 +35,7 @@ export default function BooksList() {
       <ul>
         {books.map((book) => (
           <li key={book.id}>
-            <strong>{book.title}</strong> — Author: {book.authorName} — Publisher: {book.publisherName}
+            <strong>{book.title}</strong> — Author: {book.author?.name} — Publisher: {book.publisher?.name}
           </li>
         ))}
       </ul>
