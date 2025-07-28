@@ -62,21 +62,28 @@ export default function EditBook() {
       isBorrowed: false  // Edit only allowed for not borrowed books
     };
 
-    fetch(`http://localhost:8080/api/books/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedBook)
+  fetch(`http://localhost:8080/api/books/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedBook)
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || "Failed to update book");
+      }
+      alert("Book updated successfully!");
+      navigate("/");
     })
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to update book");
-        alert("Book updated successfully!");
-        navigate("/");
-      })
-      .catch(err => {
+    .catch(err => {
+      if (err.message.includes("Cannot update a borrowed book")) {
+        setError("This book is currently borrowed and cannot be edited.");
+      } else {
         setError(err.message);
-        setSaving(false);
-      });
-  };
+      }
+      setSaving(false);
+    });
+    };
 
   if (loading) return <div>Loading book details...</div>;
 
