@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { API_BASE_URL } from "./config";
 
 export default function EditBook() {
   const { id } = useParams();
@@ -19,8 +20,8 @@ export default function EditBook() {
   useEffect(() => {
     // Fetch authors and publishers in parallel
     Promise.all([
-      fetch("http://localhost:8080/api/authors").then(res => res.json()),
-      fetch("http://localhost:8080/api/publishers").then(res => res.json())
+      fetch(`${API_BASE_URL}/api/authors`).then(res => res.json()),
+      fetch(`${API_BASE_URL}/api/publishers`).then(res => res.json())
     ])
       .then(([authorsData, publishersData]) => {
         setAuthors(authorsData);
@@ -29,7 +30,7 @@ export default function EditBook() {
       .catch(() => setError("Failed to load authors or publishers"));
 
     // Fetch book details
-    fetch(`http://localhost:8080/api/books/${id}`)
+    fetch(`${API_BASE_URL}/api/books/${id}`)
       .then(res => {
         if (!res.ok) throw new Error("Failed to load book");
         return res.json();
@@ -62,28 +63,28 @@ export default function EditBook() {
       isBorrowed: false  // Edit only allowed for not borrowed books
     };
 
-  fetch(`http://localhost:8080/api/books/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updatedBook)
-  })
-    .then(async (res) => {
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Failed to update book");
-      }
-      alert("Book updated successfully!");
-      navigate("/");
+    fetch(`${API_BASE_URL}/api/books/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedBook)
     })
-    .catch(err => {
-      if (err.message.includes("Cannot update a borrowed book")) {
-        setError("This book is currently borrowed and cannot be edited.");
-      } else {
-        setError(err.message);
-      }
-      setSaving(false);
-    });
-    };
+      .then(async (res) => {
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new Error(errorText || "Failed to update book");
+        }
+        alert("Book updated successfully!");
+        navigate("/");
+      })
+      .catch(err => {
+        if (err.message.includes("Cannot update a borrowed book")) {
+          setError("This book is currently borrowed and cannot be edited.");
+        } else {
+          setError(err.message);
+        }
+        setSaving(false);
+      });
+  };
 
   if (loading) return <div>Loading book details...</div>;
 

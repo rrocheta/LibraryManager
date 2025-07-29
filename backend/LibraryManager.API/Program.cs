@@ -28,12 +28,12 @@ namespace LibraryManager.API
             // CORS policy to allow React app
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowReactApp",
-                    policy =>
+                options.AddPolicy("AllowAll",
+                    builder =>
                     {
-                        policy.WithOrigins("http://localhost:3000")
-                              .AllowAnyHeader()
-                              .AllowAnyMethod();
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
                     });
             });
 
@@ -51,7 +51,7 @@ namespace LibraryManager.API
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowReactApp");
+            app.UseCors("AllowAll");
 
             app.UseAuthorization();
 

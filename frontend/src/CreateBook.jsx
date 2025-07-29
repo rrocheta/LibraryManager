@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "./config";
 
 export default function CreateBook() {
   const [title, setTitle] = useState("");
@@ -16,7 +17,7 @@ export default function CreateBook() {
 
   // Fetch Authors
   useEffect(() => {
-    fetch("http://localhost:8080/api/Authors")
+    fetch(`${API_BASE_URL}/api/authors`)
       .then(res => res.json())
       .then(data => {
         setAuthors(data);
@@ -30,7 +31,7 @@ export default function CreateBook() {
 
   // Fetch publishers
   useEffect(() => {
-    fetch("http://localhost:8080/api/Publishers")
+    fetch(`${API_BASE_URL}/api/publishers`)
       .then(res => res.json())
       .then(data => {
         setPublishers(data);
@@ -59,7 +60,7 @@ export default function CreateBook() {
       publisherId: parseInt(publisherId),
     };
 
-    fetch("http://localhost:8080/api/books", {
+    fetch(`${API_BASE_URL}/api/books`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newBook)

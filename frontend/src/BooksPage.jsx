@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from './config';
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
@@ -12,7 +13,7 @@ export default function BooksPage() {
 
   const fetchBooks = () => {
     setLoading(true);
-    let url = "http://localhost:8080/api/books";
+    let url = `${API_BASE_URL}/api/books`;
 
     if (selectedAuthorId) {
       url += `?authorId=${selectedAuthorId}`;
@@ -34,33 +35,33 @@ export default function BooksPage() {
   };
 
   const fetchAuthors = () => {
-    fetch("http://localhost:8080/api/authors")
+    fetch(`${API_BASE_URL}/api/authors`)
       .then((res) => res.json())
       .then((data) => setAuthors(data));
   };
 
-    const deleteBook = (id) => {
+  const deleteBook = (id) => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
 
-    fetch(`http://localhost:8080/api/books/${id}`, {
-        method: "DELETE",
+    fetch(`${API_BASE_URL}/api/books/${id}`, {
+      method: "DELETE",
     })
-        .then(async (res) => {
+      .then(async (res) => {
         if (!res.ok) {
-            // tenta ler a mensagem de erro do backend
-            const errorText = await res.text();
-            throw new Error(errorText || "Failed to delete book");
+          // tenta ler a mensagem de erro do backend
+          const errorText = await res.text();
+          throw new Error(errorText || "Failed to delete book");
         }
         fetchBooks();
-        })
-        .catch((err) => {
+      })
+      .catch((err) => {
         if (err.message.includes("Cannot delete a borrowed book")) {
-            alert("This book is currently borrowed and cannot be deleted.");
+          alert("This book is currently borrowed and cannot be deleted.");
         } else {
-            alert(err.message);
+          alert(err.message);
         }
-        });
-    };
+      });
+  };
 
   useEffect(() => {
     fetchAuthors();

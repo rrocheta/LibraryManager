@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_BASE_URL } from "./config";
 
 export default function ReturnBook() {
   const [books, setBooks] = useState([]);
@@ -8,7 +9,7 @@ export default function ReturnBook() {
 
   const fetchBorrowedBooks = () => {
     setLoading(true);
-    fetch("http://localhost:8080/api/books?isBorrowed=true")
+    fetch(`${API_BASE_URL}/api/books?isBorrowed=true`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch books");
         return res.json();
@@ -33,7 +34,7 @@ export default function ReturnBook() {
       alert("Please select a book to return.");
       return;
     }
-    fetch(`http://localhost:8080/api/books/${selectedBookId}/return`, {
+    fetch(`${API_BASE_URL}/api/books/${selectedBookId}/return`, {
       method: "POST",
     })
       .then((res) => {
