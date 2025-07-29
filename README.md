@@ -43,10 +43,12 @@ LibraryManager/
 
 ## ⚙️ Prerequisites
 
-- Docker
-- Docker Compose
-*Migrations are automatically applied when the backend container starts.*
-(Optional) For local development and managing migrations:
+- Docker  
+- Docker Compose  
+
+> Migrations are automatically applied when the backend container starts.
+
+(Optional, for local development and managing migrations):  
 - .NET SDK
 
 ---
