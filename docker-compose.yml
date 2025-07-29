@@ -1,12 +1,31 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:16
+    container_name: library-db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: librarydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   backend:
     build:
       context: ./backend/LibraryManager.API
     container_name: library-backend
     ports:
       - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=librarydb;Username=admin;Password=admin123
     networks:
       - app-network
 
@@ -14,7 +33,7 @@ services:
     build:
       context: ./frontend
       args:
-        REACT_APP_API_URL: http://localhost:8080  
+        REACT_APP_API_URL: "http://localhost:8080"
     container_name: library-frontend
     ports:
       - "3000:80"
@@ -26,3 +45,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  db_data:
