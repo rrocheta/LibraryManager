@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManager.API.Controllers
 {
+    /// <summary>
+    /// Controller for managing publisher-related API endpoints.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class PublishersController : ControllerBase
@@ -16,6 +19,13 @@ namespace LibraryManager.API.Controllers
             _publisherRepository = publisherRepository;
         }
 
+        /// <summary>
+        /// Retrieves all publishers.
+        /// </summary>
+        /// <returns>
+        /// Returns a list of publishers as <see cref="PublisherDto"/>.  
+        /// Returns 404 if no publishers are found.
+        /// </returns>
         [HttpGet]
         public ActionResult<IEnumerable<Publisher>> GetAll()
         {
@@ -28,6 +38,5 @@ namespace LibraryManager.API.Controllers
             var result = publishers.Select(pub => new PublisherDto { Id = pub.Id, Name = pub.Name });
             return Ok(result);
         }
-
     }
 }

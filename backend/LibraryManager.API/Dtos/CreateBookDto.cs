@@ -2,6 +2,9 @@
 
 namespace LibraryManager.API.Dtos
 {
+    /// <summary>
+    /// Data Transfer Object for CreateBook entity.
+    /// </summary>
     public class CreateBookDto
     {
         [Required]

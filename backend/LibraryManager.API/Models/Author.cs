@@ -1,5 +1,8 @@
 ﻿namespace LibraryManager.API.Models
 {
+    /// <summary>
+    /// Represents an author entity in the library system.
+    /// </summary>
     public class Author
     {
         public int Id { get; set; }

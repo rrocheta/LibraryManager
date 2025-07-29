@@ -2,6 +2,9 @@
 
 namespace LibraryManager.API.Dtos
 {
+    /// <summary>
+    /// Data Transfer Object for UpdateBook entity.
+    /// </summary>
     public class UpdateBookDto
     {
         [Required]

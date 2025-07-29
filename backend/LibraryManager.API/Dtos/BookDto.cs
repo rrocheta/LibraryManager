@@ -1,5 +1,8 @@
 ﻿namespace LibraryManager.API.Dtos
 {
+    /// <summary>
+    /// Data Transfer Object for Book entity.
+    /// </summary>
     public class BookDto
     {
         public Guid Id { get; set; }

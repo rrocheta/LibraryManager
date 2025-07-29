@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryManager.API.Controllers
 {
+    /// <summary>
+    /// Controller for managing book-related API endpoints.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class BooksController : ControllerBase
@@ -16,6 +19,13 @@ namespace LibraryManager.API.Controllers
             _repository = repository;
         }
 
+        /// <summary>
+        /// Retrieves a filtered list of books.
+        /// </summary>
+        /// <param name="title">Optional title filter to search books by title.</param>
+        /// <param name="authorId">Optional author ID filter to search books by author.</param>
+        /// <param name="isBorrowed">Optional borrowed status filter to search books by their borrowing status.</param>
+        /// <returns>A list of books matching the filters, mapped to <see cref="BookDto"/>.</returns>
         [HttpGet]
         public ActionResult<IEnumerable<BookDto>> GetAll([FromQuery] string? title, [FromQuery] int? authorId, [FromQuery] bool? isBorrowed)
         {
@@ -33,6 +43,11 @@ namespace LibraryManager.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Retrieves a single book by its unique identifier.
+        /// </summary>
+        /// <param name="id">The GUID identifier of the book.</param>
+        /// <returns>The book mapped to <see cref="BookDto"/> if found; otherwise, 404 Not Found or 400 Bad Request.</returns>
         [HttpGet("{id}")]
         public ActionResult<BookDto> GetById(Guid id)
         {
@@ -54,6 +69,11 @@ namespace LibraryManager.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Creates a new book record.
+        /// </summary>
+        /// <param name="bookDto">The DTO containing data needed to create a book.</param>
+        /// <returns>The created book mapped to <see cref="BookDto"/> with 201 Created status or 400 Bad Request on invalid data.</returns>
         [HttpPost]
         public ActionResult<BookDto> Create([FromBody] CreateBookDto bookDto)
         {
@@ -93,6 +113,12 @@ namespace LibraryManager.API.Controllers
             return CreatedAtAction(nameof(GetById), new { id = bookWithDetails.Id }, mappedBookDto);
         }
 
+        /// <summary>
+        /// Updates an existing book identified by ID.
+        /// </summary>
+        /// <param name="id">The GUID of the book to update.</param>
+        /// <param name="bookDto">The DTO containing updated book data.</param>
+        /// <returns>204 No Content on success, 400 Bad Request on invalid data or if the book is borrowed, or 404 Not Found if not found.</returns>
         [HttpPut("{id}")]
         public ActionResult Update(Guid id, [FromBody] BookDto bookDto)
         {
@@ -119,6 +145,11 @@ namespace LibraryManager.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Deletes a book by its ID.
+        /// </summary>
+        /// <param name="id">The GUID identifier of the book to delete.</param>
+        /// <returns>204 No Content on success, 400 Bad Request if the book is borrowed, or 404 Not Found if the book doesn't exist.</returns>
         [HttpDelete("{id}")]
         public ActionResult Delete(Guid id)
         {
@@ -137,6 +168,11 @@ namespace LibraryManager.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Marks a book as borrowed.
+        /// </summary>
+        /// <param name="id">The GUID identifier of the book to borrow.</param>
+        /// <returns>204 No Content on success, 400 Bad Request if already borrowed, or 404 Not Found if book doesn't exist.</returns>
         [HttpPost("{id}/borrow")]
         public ActionResult Borrow(Guid id)
         {
@@ -154,6 +190,11 @@ namespace LibraryManager.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Marks a book as returned (not borrowed).
+        /// </summary>
+        /// <param name="id">The GUID identifier of the book to return.</param>
+        /// <returns>204 No Content on success, 400 Bad Request if book is not borrowed, or 404 Not Found if book doesn't exist.</returns>
         [HttpPost("{id}/return")]
         public ActionResult Return(Guid id)
         {
