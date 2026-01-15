@@ -76,85 +76,101 @@ export default function BooksPage() {
   );
 
   return (
-    <div>
-      <h2>Books</h2>
+    <div className="page">
+      <header className="page-header">
+        <div>
+          <h2>Catalog</h2>
+          <p className="page-subtitle">Manage the bookstore inventory and availability.</p>
+        </div>
+        <div className="header-actions">
+          <Link className="btn btn-primary" to="/create">Add New</Link>
+        </div>
+      </header>
 
-      {/* Filtros */}
-      <div style={{ marginBottom: "1rem" }}>
-        <label>
-          Filter by Title:
-          <input
-            type="text"
-            value={filterTitle}
-            onChange={(e) => setFilterTitle(e.target.value)}
-            className="ml-2"
-            placeholder="Search title..."
-          />
-        </label>
+      <section className="card">
+        <div className="filters">
+          <label className="field">
+            <span>Filter by title</span>
+            <input
+              type="text"
+              value={filterTitle}
+              onChange={(e) => setFilterTitle(e.target.value)}
+              className="input"
+              placeholder="Search title..."
+            />
+          </label>
 
-        <label style={{ marginLeft: "1rem" }}>
-          Filter by Author:
-          <select
-            value={selectedAuthorId}
-            onChange={(e) => setSelectedAuthorId(e.target.value)}
-            className="ml-2"
-          >
-            <option value="">All</option>
-            {authors.map((author) => (
-              <option key={author.id} value={author.id}>
-                {author.name}
-              </option>
-            ))}
-          </select>
-        </label>
+          <label className="field">
+            <span>Filter by author</span>
+            <select
+              value={selectedAuthorId}
+              onChange={(e) => setSelectedAuthorId(e.target.value)}
+              className="select"
+            >
+              <option value="">All authors</option>
+              {authors.map((author) => (
+                <option key={author.id} value={author.id}>
+                  {author.name}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        {(filterTitle || selectedAuthorId) && (
-          <button
-            onClick={() => {
-              setFilterTitle("");
-              setSelectedAuthorId("");
-            }}
-            className="ml-4 bg-gray-200 px-2 py-1 rounded"
-          >
-            Clear Filters
-          </button>
-        )}
-      </div>
+          <div className="field filters-actions">
+            {(filterTitle || selectedAuthorId) && (
+              <button
+                onClick={() => {
+                  setFilterTitle("");
+                  setSelectedAuthorId("");
+                }}
+                className="btn btn-ghost"
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
 
-      {/* Lista de livros */}
       {loading ? (
-        <p>Loading books...</p>
+        <div className="state">Loading books...</div>
       ) : error ? (
-        <p>Error: {error}</p>
+        <div className="state error">Error: {error}</div>
       ) : filteredBooks.length === 0 ? (
-        <p>No books found.</p>
+        <div className="state">No books found.</div>
       ) : (
-        <>
-          <h3 style={{ marginBottom: "1rem" }}>All available books</h3>
-          <ul>
+        <section className="card">
+          <div className="card-header">
+            <h3>All available books</h3>
+            <span className="badge">{filteredBooks.length} items</span>
+          </div>
+          <ul className="book-list">
             {filteredBooks.map((book) => (
-              <li key={book.id}>
-                <strong>{book.title}</strong> - Author: {book.author?.name} - Publisher:{" "}
-                {book.publisher?.name}{" "}
-                <span style={{ marginLeft: "1rem" }}>
+              <li key={book.id} className="book-item">
+                <div className="book-meta">
+                  <div className="book-title">{book.title}</div>
+                  <div className="book-subtitle">
+                    Author: {book.author?.name} · Publisher: {book.publisher?.name}
+                  </div>
+                </div>
+                <div className="book-actions">
                   <button
                     onClick={() => navigate(`/edit/${book.id}`)}
-                    className="mr-2 bg-blue-500 text-white px-2 py-1 rounded"
-                    style={{ marginRight: "0.5rem" }}
+                    className="btn btn-outline"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => deleteBook(book.id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded"
+                    className="btn btn-danger"
                   >
                     Delete
                   </button>
-                </span>
+                </div>
               </li>
             ))}
           </ul>
-        </>
+        </section>
       )}
     </div>
   );

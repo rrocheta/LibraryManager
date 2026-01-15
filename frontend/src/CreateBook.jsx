@@ -84,50 +84,63 @@ export default function CreateBook() {
   if (loadingAuthors || loadingPublishers) return <div>Loading...</div>;
 
   return (
-    <div>
-      <h2>Create New Book</h2>
-
-      {error && <div style={{color: "red"}}>{error}</div>}
-      {successMessage && <div style={{color: "green"}}>{successMessage}</div>}
-
-      <form onSubmit={handleSubmit}>
+    <div className="page">
+      <header className="page-header">
         <div>
-          <label>Title:</label><br/>
-          <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-          />
+          <h2>Create New Book</h2>
+          <p className="page-subtitle">Add a title to the catalog with its author and publisher.</p>
         </div>
+      </header>
 
-        <div>
-          <label>Author:</label><br/>
-          <select
-            value={authorId}
-            onChange={e => setAuthorId(e.target.value)}
-          >
-            <option value="">Select author</option>
-            {authors.map(author => (
-              <option key={author.id} value={author.id}>{author.name}</option>
-            ))}
-          </select>
-        </div>
+      <section className="card">
+        {error && <div className="state error">{error}</div>}
+        {successMessage && <div className="state success">{successMessage}</div>}
 
-        <div>
-          <label>Publisher:</label><br/>
-          <select
-            value={publisherId}
-            onChange={e => setPublisherId(e.target.value)}
-          >
-            <option value="">Select publisher</option>
-            {publishers.map(pub => (
-              <option key={pub.id} value={pub.id}>{pub.name}</option>
-            ))}
-          </select>
-        </div>
+        <form onSubmit={handleSubmit} className="form-grid">
+          <label className="field">
+            <span>Title</span>
+            <input
+              type="text"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              className="input"
+              placeholder="e.g., The Night Circus"
+            />
+          </label>
 
-        <button type="submit">Create Book</button>
-      </form>
+          <label className="field">
+            <span>Author</span>
+            <select
+              value={authorId}
+              onChange={e => setAuthorId(e.target.value)}
+              className="select"
+            >
+              <option value="">Select author</option>
+              {authors.map(author => (
+                <option key={author.id} value={author.id}>{author.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="field">
+            <span>Publisher</span>
+            <select
+              value={publisherId}
+              onChange={e => setPublisherId(e.target.value)}
+              className="select"
+            >
+              <option value="">Select publisher</option>
+              {publishers.map(pub => (
+                <option key={pub.id} value={pub.id}>{pub.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary">Create Book</button>
+          </div>
+        </form>
+      </section>
     </div>
   );
 }

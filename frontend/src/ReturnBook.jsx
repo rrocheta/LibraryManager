@@ -45,28 +45,43 @@ export default function ReturnBook() {
       .catch((err) => alert(err.message));
   };
 
-  if (loading) return <div>Loading borrowed books...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <div className="state">Loading borrowed books...</div>;
+  if (error) return <div className="state error">Error: {error}</div>;
 
-  if (books.length === 0) return <div>No borrowed books to return at the moment.</div>;
+  if (books.length === 0) {
+    return <div className="state">No borrowed books to return at the moment.</div>;
+  }
 
   return (
-    <div>
-      <h2>Choose a book to return</h2>
-      <select
-        value={selectedBookId}
-        onChange={(e) => setSelectedBookId(e.target.value)}
-      >
-        <option value="">-- Select a book --</option>
-        {books.map((book) => (
-          <option key={book.id} value={book.id}>
-            {book.title} — Author: {book.author.name}
-          </option>
-        ))}
-      </select>
-      <button onClick={handleReturn} disabled={!selectedBookId}>
-        Return
-      </button>
+    <div className="page">
+      <header className="page-header">
+        <div>
+          <h2>Return a Book</h2>
+          <p className="page-subtitle">Confirm the borrowed title to check it back in.</p>
+        </div>
+      </header>
+      <section className="card form-grid">
+        <label className="field">
+          <span>Borrowed books</span>
+          <select
+            value={selectedBookId}
+            onChange={(e) => setSelectedBookId(e.target.value)}
+            className="select"
+          >
+            <option value="">-- Select a book --</option>
+            {books.map((book) => (
+              <option key={book.id} value={book.id}>
+                {book.title} - Author: {book.author.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="form-actions">
+          <button onClick={handleReturn} disabled={!selectedBookId} className="btn btn-primary">
+            Return
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

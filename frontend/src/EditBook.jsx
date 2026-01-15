@@ -86,45 +86,57 @@ export default function EditBook() {
       });
   };
 
-  if (loading) return <div>Loading book details...</div>;
+  if (loading) return <div className="state">Loading book details...</div>;
 
   return (
-    <div>
-      <h2>Edit Book</h2>
-      {error && <div style={{ color: "red" }}>{error}</div>}
-
-      <form onSubmit={handleSubmit}>
+    <div className="page">
+      <header className="page-header">
         <div>
-          <label>Title:</label><br />
-          <input
-            type="text"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-          />
+          <h2>Edit Book</h2>
+          <p className="page-subtitle">Update catalog details without losing context.</p>
         </div>
+      </header>
+      <section className="card">
+        {error && <div className="state error">{error}</div>}
 
-        <div>
-          <label>Author:</label><br />
-          <select value={authorId} onChange={e => setAuthorId(e.target.value)}>
-            <option value="">Select author</option>
-            {authors.map(author => (
-              <option key={author.id} value={author.id}>{author.name}</option>
-            ))}
-          </select>
-        </div>
+        <form onSubmit={handleSubmit} className="form-grid">
+          <label className="field">
+            <span>Title</span>
+            <input
+              type="text"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              className="input"
+            />
+          </label>
 
-        <div>
-          <label>Publisher:</label><br />
-          <select value={publisherId} onChange={e => setPublisherId(e.target.value)}>
-            <option value="">Select publisher</option>
-            {publishers.map(pub => (
-              <option key={pub.id} value={pub.id}>{pub.name}</option>
-            ))}
-          </select>
-        </div>
+          <label className="field">
+            <span>Author</span>
+            <select value={authorId} onChange={e => setAuthorId(e.target.value)} className="select">
+              <option value="">Select author</option>
+              {authors.map(author => (
+                <option key={author.id} value={author.id}>{author.name}</option>
+              ))}
+            </select>
+          </label>
 
-        <button type="submit" disabled={saving}>Save</button>
-      </form>
+          <label className="field">
+            <span>Publisher</span>
+            <select value={publisherId} onChange={e => setPublisherId(e.target.value)} className="select">
+              <option value="">Select publisher</option>
+              {publishers.map(pub => (
+                <option key={pub.id} value={pub.id}>{pub.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <div className="form-actions">
+            <button type="submit" disabled={saving} className="btn btn-primary">
+              {saving ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </form>
+      </section>
     </div>
   );
 }
