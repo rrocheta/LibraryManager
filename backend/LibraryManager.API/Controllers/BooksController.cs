@@ -82,6 +82,13 @@ namespace LibraryManager.API.Controllers
                 return BadRequest("Invalid book data.");
             }
 
+            var book = _repository.GetAll(bookDto.Title, bookDto.AuthorId, null);
+
+            if (book != null)
+            {
+                return BadRequest("A book with the same title already exists for this editor.");
+            }
+
             var createdBook = _repository.Add(new Book
             {
                 Id = Guid.NewGuid(),
