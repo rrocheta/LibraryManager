@@ -67,7 +67,9 @@ export default function CreateBook() {
     })
     .then(res => {
       if (!res.ok) {
-        throw new Error("Failed to create book");
+        return res.text().then((text) => {
+          throw new Error(text || "Failed to create book");
+        });
       }
       return res.json();
     })

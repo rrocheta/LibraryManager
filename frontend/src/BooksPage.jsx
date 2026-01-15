@@ -154,6 +154,9 @@ export default function BooksPage() {
                   </div>
                 </div>
                 <div className="book-actions">
+                  <span className={book.isBorrowed ? "pill pill-borrowed" : "pill pill-available"}>
+                    {book.isBorrowed ? "Borrowed" : "Available"}
+                  </span>
                   <button
                     onClick={() => navigate(`/edit/${book.id}`)}
                     className="btn btn-outline"
