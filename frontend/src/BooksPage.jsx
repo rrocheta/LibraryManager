@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { API_BASE_URL } from './config';
+import { API_BASE_URL } from "./config";
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
@@ -9,35 +9,19 @@ export default function BooksPage() {
   const [selectedAuthorId, setSelectedAuthorId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Trigger simples para refazer o fetch quando precisa (ex: depois de apagar)
+  const [reloadKey, setReloadKey] = useState(0);
+
   const navigate = useNavigate();
-
-  const fetchBooks = () => {
-    setLoading(true);
-    let url = `${API_BASE_URL}/api/books`;
-
-    if (selectedAuthorId) {
-      url += `?authorId=${selectedAuthorId}`;
-    }
-
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch books");
-        return res.json();
-      })
-      .then((data) => {
-        setBooks(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
-  };
 
   const fetchAuthors = () => {
     fetch(`${API_BASE_URL}/api/authors`)
       .then((res) => res.json())
-      .then((data) => setAuthors(data));
+      .then((data) => setAuthors(data))
+      .catch(() => {
+        // opcional: não bloquear a página toda se falhar authors
+      });
   };
 
   const deleteBook = (id) => {
@@ -48,11 +32,11 @@ export default function BooksPage() {
     })
       .then(async (res) => {
         if (!res.ok) {
-          // tenta ler a mensagem de erro do backend
           const errorText = await res.text();
           throw new Error(errorText || "Failed to delete book");
         }
-        fetchBooks();
+        // força refresh da lista
+        setReloadKey((k) => k + 1);
       })
       .catch((err) => {
         if (err.message.includes("Cannot delete a borrowed book")) {
@@ -68,8 +52,32 @@ export default function BooksPage() {
   }, []);
 
   useEffect(() => {
+    const fetchBooks = () => {
+      setLoading(true);
+      setError(null);
+
+      let url = `${API_BASE_URL}/api/books`;
+      if (selectedAuthorId) {
+        url += `?authorId=${selectedAuthorId}`;
+      }
+
+      fetch(url)
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch books");
+          return res.json();
+        })
+        .then((data) => {
+          setBooks(data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          setError(err.message);
+          setLoading(false);
+        });
+    };
+
     fetchBooks();
-  }, [selectedAuthorId]);
+  }, [selectedAuthorId, reloadKey]);
 
   const filteredBooks = books.filter((book) =>
     book.title.toLowerCase().includes(filterTitle.toLowerCase())
@@ -80,10 +88,14 @@ export default function BooksPage() {
       <header className="page-header">
         <div>
           <h2>Catalog</h2>
-          <p className="page-subtitle">Manage the bookstore inventory and availability.</p>
+          <p className="page-subtitle">
+            Manage the bookstore inventory and availability.
+          </p>
         </div>
         <div className="header-actions">
-          <Link className="btn btn-primary" to="/create">Add New</Link>
+          <Link className="btn btn-primary" to="/create">
+            Add New
+          </Link>
         </div>
       </header>
 
@@ -150,11 +162,18 @@ export default function BooksPage() {
                 <div className="book-meta">
                   <div className="book-title">{book.title}</div>
                   <div className="book-subtitle">
-                    Author: {book.author?.name} · Publisher: {book.publisher?.name}
+                    Author: {book.author?.name} · Publisher:{" "}
+                    {book.publisher?.name}
                   </div>
                 </div>
                 <div className="book-actions">
-                  <span className={book.isBorrowed ? "pill pill-borrowed" : "pill pill-available"}>
+                  <span
+                    className={
+                      book.isBorrowed
+                        ? "pill pill-borrowed"
+                        : "pill pill-available"
+                    }
+                  >
                     {book.isBorrowed ? "Borrowed" : "Available"}
                   </span>
                   <button
