@@ -8,6 +8,7 @@ export default function BooksPage() {
   const [authors, setAuthors] = useState([]);
   const [filterTitle, setFilterTitle] = useState("");
   const [selectedAuthorId, setSelectedAuthorId] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pageMessage, setPageMessage] = useState(null);
@@ -59,7 +60,7 @@ export default function BooksPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [filterTitle, selectedAuthorId]);
+  }, [filterTitle, selectedAuthorId, selectedStatus]);
 
   useEffect(() => {
     const fetchBooks = () => {
@@ -79,6 +80,13 @@ export default function BooksPage() {
         params.set("title", filterTitle.trim());
       }
 
+      if (selectedStatus) {
+        params.set(
+          "isBorrowed",
+          selectedStatus === "borrowed" ? "true" : "false"
+        );
+      }
+
       const url = `/api/books/paged?${params.toString()}`;
       api
         .get(url)
@@ -95,7 +103,7 @@ export default function BooksPage() {
     };
 
     fetchBooks();
-  }, [selectedAuthorId, filterTitle, page, reloadKey]);
+  }, [selectedAuthorId, filterTitle, selectedStatus, page, reloadKey]);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -179,12 +187,26 @@ export default function BooksPage() {
             </select>
           </label>
 
+          <label className="field">
+            <span>Filter by status</span>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="select"
+            >
+              <option value="">All statuses</option>
+              <option value="available">Available</option>
+              <option value="borrowed">Borrowed</option>
+            </select>
+          </label>
+
           <div className="field filters-actions">
-            {(filterTitle || selectedAuthorId) && (
+            {(filterTitle || selectedAuthorId || selectedStatus) && (
               <button
                 onClick={() => {
                   setFilterTitle("");
                   setSelectedAuthorId("");
+                  setSelectedStatus("");
                 }}
                 className="btn btn-ghost"
               >
