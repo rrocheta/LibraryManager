@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace LibraryManager.API
 {
@@ -61,7 +62,33 @@ namespace LibraryManager.API
             using (var scope = app.Services.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                context.Database.Migrate();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                const int maxAttempts = 10;
+                var delay = TimeSpan.FromSeconds(2);
+
+                for (var attempt = 1; attempt <= maxAttempts; attempt += 1)
+                {
+                    try
+                    {
+                        context.Database.Migrate();
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (attempt == maxAttempts)
+                        {
+                            throw;
+                        }
+
+                        logger.LogWarning(
+                            ex,
+                            "Database migration failed (attempt {Attempt}/{Max}). Retrying in {DelaySeconds}s.",
+                            attempt,
+                            maxAttempts,
+                            delay.TotalSeconds);
+                        Thread.Sleep(delay);
+                    }
+                }
 
                 context.SaveChanges();
             }
