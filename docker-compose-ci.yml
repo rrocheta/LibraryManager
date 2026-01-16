@@ -1,0 +1,4 @@
+services:
+  backend:
+    environment:
+      - AppSettings__EnableSwagger=true
