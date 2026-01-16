@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "./config";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { api } from "./api";
+import StatusMessage from "./StatusMessage";
 
 export default function BooksPage() {
   const [books, setBooks] = useState([]);
@@ -9,41 +10,42 @@ export default function BooksPage() {
   const [selectedAuthorId, setSelectedAuthorId] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [pageMessage, setPageMessage] = useState(null);
+  const [pageTone, setPageTone] = useState("info");
 
   // Trigger simples para refazer o fetch quando precisa (ex: depois de apagar)
   const [reloadKey, setReloadKey] = useState(0);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const fetchAuthors = () => {
-    fetch(`${API_BASE_URL}/api/authors`)
-      .then((res) => res.json())
+  const fetchAuthors = () =>
+    api
+      .get("/api/authors")
       .then((data) => setAuthors(data))
       .catch(() => {
         // opcional: não bloquear a página toda se falhar authors
       });
-  };
 
   const deleteBook = (id) => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
 
-    fetch(`${API_BASE_URL}/api/books/${id}`, {
-      method: "DELETE",
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText || "Failed to delete book");
-        }
+    setPageMessage(null);
+    api
+      .del(`/api/books/${id}`)
+      .then(() => {
+        setPageTone("success");
+        setPageMessage("Book deleted successfully.");
         // força refresh da lista
         setReloadKey((k) => k + 1);
       })
       .catch((err) => {
         if (err.message.includes("Cannot delete a borrowed book")) {
-          alert("This book is currently borrowed and cannot be deleted.");
+          setPageMessage("This book is currently borrowed and cannot be deleted.");
         } else {
-          alert(err.message);
+          setPageMessage(err.message);
         }
+        setPageTone("error");
       });
   };
 
@@ -56,16 +58,14 @@ export default function BooksPage() {
       setLoading(true);
       setError(null);
 
-      let url = `${API_BASE_URL}/api/books`;
+      let url = "/api/books";
       if (selectedAuthorId) {
-        url += `?authorId=${selectedAuthorId}`;
+        const params = new URLSearchParams({ authorId: selectedAuthorId });
+        url += `?${params.toString()}`;
       }
 
-      fetch(url)
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to fetch books");
-          return res.json();
-        })
+      api
+        .get(url)
         .then((data) => {
           setBooks(data);
           setLoading(false);
@@ -78,6 +78,14 @@ export default function BooksPage() {
 
     fetchBooks();
   }, [selectedAuthorId, reloadKey]);
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setPageMessage(location.state.message);
+      setPageTone(location.state.tone || "success");
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location, navigate]);
 
   const filteredBooks = books.filter((book) =>
     book.title.toLowerCase().includes(filterTitle.toLowerCase())
@@ -144,53 +152,58 @@ export default function BooksPage() {
         </div>
       </section>
 
+      {pageMessage && <StatusMessage tone={pageTone}>{pageMessage}</StatusMessage>}
+
       {loading ? (
-        <div className="state">Loading books...</div>
+        <StatusMessage>Loading books...</StatusMessage>
       ) : error ? (
-        <div className="state error">Error: {error}</div>
+        <StatusMessage tone="error">Error: {error}</StatusMessage>
       ) : filteredBooks.length === 0 ? (
-        <div className="state">No books found.</div>
+        <StatusMessage>No books found.</StatusMessage>
       ) : (
         <section className="card">
           <div className="card-header">
-            <h3>All available books</h3>
+            <h3>All books</h3>
             <span className="badge">{filteredBooks.length} items</span>
           </div>
           <ul className="book-list">
-            {filteredBooks.map((book) => (
-              <li key={book.id} className="book-item">
-                <div className="book-meta">
-                  <div className="book-title">{book.title}</div>
-                  <div className="book-subtitle">
-                    Author: {book.author?.name} · Publisher:{" "}
-                    {book.publisher?.name}
+            {filteredBooks.map((book) => {
+              const isBorrowed = book.isBorrowed;
+              return (
+                <li key={book.id} className="book-item">
+                  <div className="book-meta">
+                    <div className="book-title">{book.title}</div>
+                    <div className="book-subtitle">
+                      Author: {book.author?.name} · Publisher:{" "}
+                      {book.publisher?.name}
+                    </div>
                   </div>
-                </div>
-                <div className="book-actions">
-                  <span
-                    className={
-                      book.isBorrowed
-                        ? "pill pill-borrowed"
-                        : "pill pill-available"
-                    }
-                  >
-                    {book.isBorrowed ? "Borrowed" : "Available"}
-                  </span>
-                  <button
-                    onClick={() => navigate(`/edit/${book.id}`)}
-                    className="btn btn-outline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteBook(book.id)}
-                    className="btn btn-danger"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
+                  <div className="book-actions">
+                    <span
+                      className={
+                        isBorrowed ? "pill pill-borrowed" : "pill pill-available"
+                      }
+                    >
+                      {isBorrowed ? "Borrowed" : "Available"}
+                    </span>
+                    <button
+                      onClick={() => navigate(`/edit/${book.id}`)}
+                      className="btn btn-outline"
+                      disabled={isBorrowed}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteBook(book.id)}
+                      className="btn btn-danger"
+                      disabled={isBorrowed}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

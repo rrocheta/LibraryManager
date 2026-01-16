@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { API_BASE_URL } from "./config";
+import { api } from "./api";
+import StatusMessage from "./StatusMessage";
 
 export default function EditBook() {
   const { id } = useParams();
@@ -19,10 +20,7 @@ export default function EditBook() {
 
   useEffect(() => {
     // Fetch authors and publishers in parallel
-    Promise.all([
-      fetch(`${API_BASE_URL}/api/authors`).then(res => res.json()),
-      fetch(`${API_BASE_URL}/api/publishers`).then(res => res.json())
-    ])
+    Promise.all([api.get("/api/authors"), api.get("/api/publishers")])
       .then(([authorsData, publishersData]) => {
         setAuthors(authorsData);
         setPublishers(publishersData);
@@ -30,11 +28,8 @@ export default function EditBook() {
       .catch(() => setError("Failed to load authors or publishers"));
 
     // Fetch book details
-    fetch(`${API_BASE_URL}/api/books/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to load book");
-        return res.json();
-      })
+    api
+      .get(`/api/books/${id}`)
       .then(data => {
         setTitle(data.title);
         setAuthorId(data.author.id);
@@ -63,20 +58,14 @@ export default function EditBook() {
       isBorrowed: false  // Edit only allowed for not borrowed books
     };
 
-    fetch(`${API_BASE_URL}/api/books/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedBook)
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText || "Failed to update book");
-        }
-        alert("Book updated successfully!");
-        navigate("/");
+    api
+      .put(`/api/books/${id}`, updatedBook)
+      .then(() => {
+        navigate("/", {
+          state: { message: "Book updated successfully!", tone: "success" },
+        });
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.message.includes("Cannot update a borrowed book")) {
           setError("This book is currently borrowed and cannot be edited.");
         } else {
@@ -86,7 +75,7 @@ export default function EditBook() {
       });
   };
 
-  if (loading) return <div className="state">Loading book details...</div>;
+  if (loading) return <StatusMessage>Loading book details...</StatusMessage>;
 
   return (
     <div className="page">
@@ -97,7 +86,7 @@ export default function EditBook() {
         </div>
       </header>
       <section className="card">
-        {error && <div className="state error">{error}</div>}
+        {error && <StatusMessage tone="error">{error}</StatusMessage>}
 
         <form onSubmit={handleSubmit} className="form-grid">
           <label className="field">

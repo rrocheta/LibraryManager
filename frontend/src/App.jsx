@@ -1,10 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import BorrowBook from "./BorrowBook";
 import ReturnBook from "./ReturnBook";
 import CreateBook from "./CreateBook";
 import EditBook from "./EditBook";
 import BooksPage from "./BooksPage";
+import NotFound from "./NotFound";
 
 
 function App() {
@@ -20,10 +21,12 @@ function App() {
             </div>
           </div>
           <nav className="nav">
-            <Link to="/">Catalog</Link>
-            <Link to="/create">Add Book</Link>
-            <Link to="/borrow">Borrow</Link>
-            <Link to="/return">Return</Link>
+            <NavLink to="/" end>
+              Catalog
+            </NavLink>
+            <NavLink to="/create">Add Book</NavLink>
+            <NavLink to="/borrow">Borrow</NavLink>
+            <NavLink to="/return">Return</NavLink>
           </nav>
         </header>
         <main className="content">
@@ -33,6 +36,7 @@ function App() {
             <Route path="/return" element={<ReturnBook />} />
             <Route path="/create" element={<CreateBook />} />
             <Route path="/edit/:id" element={<EditBook />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </div>

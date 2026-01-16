@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { API_BASE_URL } from "./config";
+import { api } from "./api";
+import StatusMessage from "./StatusMessage";
 
 export default function CreateBook() {
   const [title, setTitle] = useState("");
@@ -9,37 +10,23 @@ export default function CreateBook() {
   const [authors, setAuthors] = useState([]);
   const [publishers, setPublishers] = useState([]);
 
-  const [loadingAuthors, setLoadingAuthors] = useState(true);
-  const [loadingPublishers, setLoadingPublishers] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  // Fetch Authors
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/authors`)
-      .then(res => res.json())
-      .then(data => {
-        setAuthors(data);
-        setLoadingAuthors(false);
+    setLoading(true);
+    setError(null);
+    Promise.all([api.get("/api/authors"), api.get("/api/publishers")])
+      .then(([authorsData, publishersData]) => {
+        setAuthors(authorsData);
+        setPublishers(publishersData);
+        setLoading(false);
       })
-      .catch(err => {
-        setError("Failed to load authors");
-        setLoadingAuthors(false);
-      });
-  }, []);
-
-  // Fetch publishers
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/api/publishers`)
-      .then(res => res.json())
-      .then(data => {
-        setPublishers(data);
-        setLoadingPublishers(false);
-      })
-      .catch(err => {
-        setError("Failed to load publishers");
-        setLoadingPublishers(false);
+      .catch(() => {
+        setError("Failed to load authors or publishers");
+        setLoading(false);
       });
   }, []);
 
@@ -60,30 +47,19 @@ export default function CreateBook() {
       publisherId: parseInt(publisherId),
     };
 
-    fetch(`${API_BASE_URL}/api/books`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newBook)
-    })
-    .then(res => {
-      if (!res.ok) {
-        return res.text().then((text) => {
-          throw new Error(text || "Failed to create book");
-        });
-      }
-      return res.json();
-    })
-    .then(data => {
-      setSuccessMessage("Book created successfully!");
-      // reset form
-      setTitle("");
-      setAuthorId("");
-      setPublisherId("");
-    })
-    .catch(err => setError(err.message));
+    api
+      .post("/api/books", newBook)
+      .then(() => {
+        setSuccessMessage("Book created successfully!");
+        // reset form
+        setTitle("");
+        setAuthorId("");
+        setPublisherId("");
+      })
+      .catch((err) => setError(err.message));
   };
 
-  if (loadingAuthors || loadingPublishers) return <div>Loading...</div>;
+  if (loading) return <StatusMessage>Loading authors and publishers...</StatusMessage>;
 
   return (
     <div className="page">
@@ -95,8 +71,8 @@ export default function CreateBook() {
       </header>
 
       <section className="card">
-        {error && <div className="state error">{error}</div>}
-        {successMessage && <div className="state success">{successMessage}</div>}
+        {error && <StatusMessage tone="error">{error}</StatusMessage>}
+        {successMessage && <StatusMessage tone="success">{successMessage}</StatusMessage>}
 
         <form onSubmit={handleSubmit} className="form-grid">
           <label className="field">
