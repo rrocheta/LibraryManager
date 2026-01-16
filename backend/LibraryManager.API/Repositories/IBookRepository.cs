@@ -17,6 +17,24 @@ namespace LibraryManager.API.Repositories
         IEnumerable<Book> GetAll(string? title = null, int? authorId = null, bool? isBorrowed = null);
 
         /// <summary>
+        /// Retrieves a paged set of books, optionally filtered by title, author, or borrowed status.
+        /// </summary>
+        /// <param name="title">Optional filter by book title.</param>
+        /// <param name="authorId">Optional filter by author ID.</param>
+        /// <param name="isBorrowed">Optional filter by borrowed status.</param>
+        /// <param name="page">Page number (1-based).</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <param name="totalCount">Total count of items matching the filters.</param>
+        /// <returns>A paged collection of <see cref="Book"/> entities.</returns>
+        IEnumerable<Book> GetPaged(
+            string? title,
+            int? authorId,
+            bool? isBorrowed,
+            int page,
+            int pageSize,
+            out int totalCount);
+
+        /// <summary>
         /// Retrieves a book by its unique identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the book.</param>

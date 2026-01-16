@@ -44,6 +44,65 @@ namespace LibraryManager.API.Controllers
         }
 
         /// <summary>
+        /// Retrieves a paged, filtered list of books.
+        /// </summary>
+        /// <param name="title">Optional title filter to search books by title.</param>
+        /// <param name="authorId">Optional author ID filter to search books by author.</param>
+        /// <param name="isBorrowed">Optional borrowed status filter to search books by their borrowing status.</param>
+        /// <param name="page">Page number (1-based).</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <returns>A paged result of books mapped to <see cref="BookDto"/>.</returns>
+        [HttpGet("paged")]
+        public ActionResult<PagedResultDto<BookDto>> GetPaged(
+            [FromQuery] string? title,
+            [FromQuery] int? authorId,
+            [FromQuery] bool? isBorrowed,
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            if (page < 1)
+            {
+                page = 1;
+            }
+
+            if (pageSize < 1)
+            {
+                pageSize = 10;
+            }
+
+            if (pageSize > 100)
+            {
+                pageSize = 100;
+            }
+
+            var books = _repository.GetPaged(title, authorId, isBorrowed, page, pageSize, out var totalCount);
+
+            var resultItems = books.Select(book => new BookDto
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = new AuthorDto { Id = book.Author.Id, Name = book.Author.Name },
+                Publisher = new PublisherDto { Id = book.Publisher.Id, Name = book.Publisher.Name },
+                IsBorrowed = book.IsBorrowed
+            }).ToList();
+
+            var totalPages = totalCount == 0
+                ? 1
+                : (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var result = new PagedResultDto<BookDto>
+            {
+                Items = resultItems,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
+
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Retrieves a single book by its unique identifier.
         /// </summary>
         /// <param name="id">The GUID identifier of the book.</param>

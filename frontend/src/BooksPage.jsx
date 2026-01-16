@@ -12,6 +12,10 @@ export default function BooksPage() {
   const [error, setError] = useState(null);
   const [pageMessage, setPageMessage] = useState(null);
   const [pageTone, setPageTone] = useState("info");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 10;
 
   // Trigger simples para refazer o fetch quando precisa (ex: depois de apagar)
   const [reloadKey, setReloadKey] = useState(0);
@@ -54,20 +58,34 @@ export default function BooksPage() {
   }, []);
 
   useEffect(() => {
+    setPage(1);
+  }, [filterTitle, selectedAuthorId]);
+
+  useEffect(() => {
     const fetchBooks = () => {
       setLoading(true);
       setError(null);
 
-      let url = "/api/books";
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(pageSize),
+      });
+
       if (selectedAuthorId) {
-        const params = new URLSearchParams({ authorId: selectedAuthorId });
-        url += `?${params.toString()}`;
+        params.set("authorId", selectedAuthorId);
       }
 
+      if (filterTitle.trim()) {
+        params.set("title", filterTitle.trim());
+      }
+
+      const url = `/api/books/paged?${params.toString()}`;
       api
         .get(url)
         .then((data) => {
-          setBooks(data);
+          setBooks(data.items || []);
+          setTotalCount(data.totalCount || 0);
+          setTotalPages(data.totalPages || 1);
           setLoading(false);
         })
         .catch((err) => {
@@ -77,7 +95,7 @@ export default function BooksPage() {
     };
 
     fetchBooks();
-  }, [selectedAuthorId, reloadKey]);
+  }, [selectedAuthorId, filterTitle, page, reloadKey]);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -87,9 +105,34 @@ export default function BooksPage() {
     }
   }, [location, navigate]);
 
-  const filteredBooks = books.filter((book) =>
-    book.title.toLowerCase().includes(filterTitle.toLowerCase())
-  );
+  useEffect(() => {
+    if (totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
+  const getPageNumbers = () => {
+    const maxButtons = 5;
+    const safeTotalPages = Math.max(totalPages, 1);
+    const current = Math.min(page, safeTotalPages);
+    const half = Math.floor(maxButtons / 2);
+
+    let start = Math.max(1, current - half);
+    let end = Math.min(safeTotalPages, start + maxButtons - 1);
+
+    if (end - start + 1 < maxButtons) {
+      start = Math.max(1, end - maxButtons + 1);
+    }
+
+    const pages = [];
+    for (let i = start; i <= end; i += 1) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  const startIndex = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
+  const endIndex = Math.min(page * pageSize, totalCount);
 
   return (
     <div className="page">
@@ -158,16 +201,16 @@ export default function BooksPage() {
         <StatusMessage>Loading books...</StatusMessage>
       ) : error ? (
         <StatusMessage tone="error">Error: {error}</StatusMessage>
-      ) : filteredBooks.length === 0 ? (
+      ) : books.length === 0 ? (
         <StatusMessage>No books found.</StatusMessage>
       ) : (
         <section className="card">
           <div className="card-header">
             <h3>All books</h3>
-            <span className="badge">{filteredBooks.length} items</span>
+            <span className="badge">{totalCount} items</span>
           </div>
           <ul className="book-list">
-            {filteredBooks.map((book) => {
+            {books.map((book) => {
               const isBorrowed = book.isBorrowed;
               return (
                 <li key={book.id} className="book-item">
@@ -205,6 +248,46 @@ export default function BooksPage() {
               );
             })}
           </ul>
+          {totalPages > 1 && (
+            <div className="pagination">
+              <div className="pagination-info">
+                Showing {startIndex}-{endIndex} of {totalCount}
+              </div>
+              <div className="pagination-controls">
+                <button
+                  className="btn btn-outline"
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={page === 1}
+                >
+                  Previous
+                </button>
+                <div className="pagination-pages">
+                  {getPageNumbers().map((pageNumber) => (
+                    <button
+                      key={pageNumber}
+                      type="button"
+                      className={`btn btn-outline pagination-page${
+                        pageNumber === page ? " is-active" : ""
+                      }`}
+                      onClick={() => setPage(pageNumber)}
+                      aria-current={pageNumber === page ? "page" : undefined}
+                    >
+                      {pageNumber}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="btn btn-outline"
+                  onClick={() =>
+                    setPage((current) => Math.min(totalPages, current + 1))
+                  }
+                  disabled={page === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </section>
       )}
     </div>

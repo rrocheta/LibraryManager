@@ -44,6 +44,48 @@ namespace LibraryManager.API.Repositories
         }
 
         /// <summary>
+        /// Retrieves a page of books, optionally filtered by title, author, or borrowed status.
+        /// </summary>
+        /// <param name="title">Optional filter for book title.</param>
+        /// <param name="authorId">Optional filter for author ID.</param>
+        /// <param name="isBorrowed">Optional filter for borrowed status.</param>
+        /// <param name="page">Page number (1-based).</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <param name="totalCount">Total count of items matching the filters.</param>
+        /// <returns>A page of <see cref="Book"/> entities.</returns>
+        public IEnumerable<Book> GetPaged(
+            string? title,
+            int? authorId,
+            bool? isBorrowed,
+            int page,
+            int pageSize,
+            out int totalCount)
+        {
+            var query = _dbContext.Books
+                .Include(b => b.Author)
+                .Include(b => b.Publisher)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(title))
+                query = query.Where(b => b.Title.Contains(title));
+
+            if (authorId.HasValue)
+                query = query.Where(b => b.AuthorId == authorId.Value);
+
+            if (isBorrowed.HasValue)
+                query = query.Where(b => b.IsBorrowed == isBorrowed.Value);
+
+            totalCount = query.Count();
+
+            return query
+                .OrderBy(b => b.Title)
+                .ThenBy(b => b.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+
+        /// <summary>
         /// Retrieves a single book by its unique identifier.
         /// </summary>
         /// <param name="id">The unique identifier of the book.</param>
