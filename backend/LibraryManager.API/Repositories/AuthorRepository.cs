@@ -24,5 +24,27 @@ namespace LibraryManager.API.Repositories
         {
             return _dbContext.Authors.ToList();
         }
+
+        /// <summary>
+        /// Retrieves a single author by its ID.
+        /// </summary>
+        /// <param name="id">Author identifier.</param>
+        /// <returns>The matching <see cref="Author"/> or null.</returns>
+        public Author? GetById(int id)
+        {
+            return _dbContext.Authors.Find(id);
+        }
+
+        /// <summary>
+        /// Adds a new author to the database.
+        /// </summary>
+        /// <param name="author">The author entity.</param>
+        /// <returns>The created <see cref="Author"/>.</returns>
+        public Author Add(Author author)
+        {
+            _dbContext.Authors.Add(author);
+            _dbContext.SaveChanges();
+            return author;
+        }
     }
 }

@@ -23,5 +23,27 @@ namespace LibraryManager.API.Repositories
         {
             return _dbContext.Publishers.ToList();
         }
+
+        /// <summary>
+        /// Retrieves a single publisher by its ID.
+        /// </summary>
+        /// <param name="id">Publisher identifier.</param>
+        /// <returns>The matching <see cref="Publisher"/> or null.</returns>
+        public Publisher? GetById(int id)
+        {
+            return _dbContext.Publishers.Find(id);
+        }
+
+        /// <summary>
+        /// Adds a new publisher to the database.
+        /// </summary>
+        /// <param name="publisher">The publisher entity.</param>
+        /// <returns>The created <see cref="Publisher"/>.</returns>
+        public Publisher Add(Publisher publisher)
+        {
+            _dbContext.Publishers.Add(publisher);
+            _dbContext.SaveChanges();
+            return publisher;
+        }
     }
 }

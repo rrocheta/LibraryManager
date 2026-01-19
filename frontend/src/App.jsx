@@ -5,6 +5,8 @@ import ReturnBook from "./ReturnBook";
 import CreateBook from "./CreateBook";
 import EditBook from "./EditBook";
 import BooksPage from "./BooksPage";
+import AuthorsPage from "./AuthorsPage";
+import PublishersPage from "./PublishersPage";
 import NotFound from "./NotFound";
 
 
@@ -43,6 +45,8 @@ function App() {
                 Catalog
               </NavLink>
               <NavLink to="/create">Add Book</NavLink>
+              <NavLink to="/authors">Authors</NavLink>
+              <NavLink to="/publishers">Publishers</NavLink>
               <NavLink to="/borrow">Borrow</NavLink>
               <NavLink to="/return">Return</NavLink>
             </nav>
@@ -92,6 +96,8 @@ function App() {
             <Route path="/return" element={<ReturnBook />} />
             <Route path="/create" element={<CreateBook />} />
             <Route path="/edit/:id" element={<EditBook />} />
+            <Route path="/authors" element={<AuthorsPage />} />
+            <Route path="/publishers" element={<PublishersPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
