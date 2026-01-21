@@ -1,16 +1,33 @@
 ## 📚 LibraryManager
 
-A full-stack application for managing a library system, built with ASP.NET Core (Web API), React, and PostgreSQL. It allows you to create, edit, borrow, return, and manage books.
+![CI](https://github.com/rrocheta/LibraryManager/actions/workflows/ci.yml/badge.svg)
+
+A full-stack application for managing a library system, built with ASP.NET Core (Web API), React, and PostgreSQL. It supports managing books, authors, and publishers with a dedicated web UI. This project is for study and learning purposes.
+
+![LibraryManager UI](./docs/screenshot-home.png)
+
+> The database is automatically seeded with demo data (authors and 15 books) to showcase pagination, borrowing state, and catalog browsing.
 
 ---
 
 ## 🚀 Features
 
 - 📖 Create, edit, and delete books
-- 📚 List available and borrowed books
+- 👩‍💼 Create, list, and delete authors and publishers
+- 📚 View available and borrowed books
+- 🌗 Light and dark theme toggle
 - 🔄 Borrow and return books
 - ✅ Backend unit tests using xUnit
 - 🐳 Dockerized frontend, backend, and PostgreSQL database setup with migrations applied automatically
+
+## 🧩 Demo Data
+
+On first startup, the database is automatically seeded with:
+- 5 authors
+- 3 publishers
+- 15 classic books
+
+This allows immediate interaction with pagination (10 items per page), borrowing state, and catalog browsing without manual setup.
 
 ---
 
@@ -21,7 +38,7 @@ A full-stack application for managing a library system, built with ASP.NET Core 
 | Frontend  | React                         |
 | Backend   | ASP.NET Core Web API (.NET 8) |
 | Database  | PostgreSQL                    |
-| Styling   | None (barebones UI)           |
+| Styling   | Custom CSS UI                 |
 | Testing   | xUnit                         |
 | DevOps    | Docker & Docker Compose       |
 
@@ -36,6 +53,7 @@ LibraryManager/
 ├── frontend/
 │   └── React App                  # React SPA
 ├── docker-compose.yml
+├── docker-compose-ci.yml
 └── README.md
 ```
 
@@ -69,8 +87,15 @@ LibraryManager/
 3. The backend container will automatically apply Entity Framework Core migrations on startup, creating the necessary database schema.
 
 4. **Access the application**
-   - Backend API: [http://localhost:8080](http://localhost:8080)
-   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Frontend: http://localhost:3000
+   - Backend API (base URL): http://localhost:8080
+   - Swagger UI: http://localhost:8080/swagger
+
+---
+
+## 🤖 CI
+
+CI runs via GitHub Actions and uses `docker-compose-ci.yml` to build and validate the stack in a containerized setup.
 
 ---
 
@@ -102,7 +127,7 @@ To run backend tests locally:
 
 1. Navigate to the test project:
    ```bash
-   cd backend/LibraryManager.Tests
+   cd backend/LibraryManager.API.Tests
    ```
 
 2. Run tests with the .NET CLI:
@@ -114,21 +139,24 @@ To run backend tests locally:
 
 ## 🧪 API Endpoints (Sample)
 
-| Method | Endpoint             | Description           |
-|--------|----------------------|-----------------------|
-| GET    | `/api/books`         | List all books        |
-| GET    | `/api/authors`       | List all authors      |
-| GET    | `/api/publishers`    | List all publishers   |
-| POST   | `/api/books`         | Create new book       |
-| PUT    | `/api/books/{id}`    | Edit book             |
-| DELETE | `/api/books/{id}`    | Delete book           |
+| Method | Endpoint                 | Description                |
+|--------|--------------------------|----------------------------|
+| GET    | `/api/books`             | List all books             |
+| GET    | `/api/authors`           | List all authors           |
+| GET    | `/api/publishers`        | List all publishers        |
+| POST   | `/api/books`             | Create new book            |
+| POST   | `/api/authors`           | Create new author          |
+| POST   | `/api/publishers`        | Create new publisher       |
+| PUT    | `/api/books/{id}`        | Edit book                  |
+| DELETE | `/api/books/{id}`        | Delete book                |
+| DELETE | `/api/authors/{id}`      | Delete author              |
+| DELETE | `/api/publishers/{id}`   | Delete publisher           |
 
 ---
 
-## 📦 To Do / Improvements
+## 📌 Note
 
-- 🎨 Add UI styling (currently no design system or template used)
-- 🧪 Add more test coverage (integration tests, frontend tests)
+This project is under active development and may evolve as new features are added and existing components are refined as part of ongoing learning and experimentation.
 
 ---
 
