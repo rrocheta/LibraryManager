@@ -75,7 +75,7 @@ LibraryManager/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/LibraryManager.git
+   git clone https://github.com/rrocheta/LibraryManager.git
    cd LibraryManager
    ```
 
