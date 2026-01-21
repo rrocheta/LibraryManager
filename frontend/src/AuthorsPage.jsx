@@ -56,6 +56,22 @@ export default function AuthorsPage() {
       .catch((err) => setError(err.message));
   };
 
+  const deleteAuthor = (authorId) => {
+    setError(null);
+    setSuccessMessage(null);
+    const author = authors.find((item) => item.id === authorId);
+    if (!author) return;
+    if (!window.confirm(`Delete "${author.name}"?`)) return;
+
+    api
+      .del(`/api/authors/${authorId}`)
+      .then(() => {
+        setAuthors((prev) => prev.filter((item) => item.id !== authorId));
+        setSuccessMessage("Author deleted successfully.");
+      })
+      .catch((err) => setError(err.message));
+  };
+
   if (loading) return <StatusMessage>Loading authors...</StatusMessage>;
 
   return (
@@ -105,6 +121,14 @@ export default function AuthorsPage() {
                 <div className="book-meta">
                   <div className="book-title">{author.name}</div>
                   <div className="book-subtitle">ID: {author.id}</div>
+                </div>
+                <div className="book-actions">
+                  <button
+                    onClick={() => deleteAuthor(author.id)}
+                    className="btn btn-danger"
+                  >
+                    Delete
+                  </button>
                 </div>
               </li>
             ))}

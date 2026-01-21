@@ -45,10 +45,10 @@ function App() {
                 Catalog
               </NavLink>
               <NavLink to="/create">Add Book</NavLink>
-              <NavLink to="/authors">Authors</NavLink>
-              <NavLink to="/publishers">Publishers</NavLink>
               <NavLink to="/borrow">Borrow</NavLink>
               <NavLink to="/return">Return</NavLink>
+              <NavLink to="/authors">Authors</NavLink>
+              <NavLink to="/publishers">Publishers</NavLink>
             </nav>
             <button
               type="button"

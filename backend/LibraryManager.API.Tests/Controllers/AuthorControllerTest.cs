@@ -69,5 +69,51 @@ namespace LibraryManager.API.Tests.Controllers
             var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
             Assert.Equal("No authors found.", notFoundResult.Value);
         }
+
+        [Fact]
+        public void Delete_WhenAuthorMissing_ReturnsNotFound()
+        {
+            // Arrange
+            var authorId = 10;
+            _mockRepository.Setup(r => r.GetById(authorId)).Returns((Author)null);
+
+            // Act
+            var result = _controller.Delete(authorId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public void Delete_WhenAuthorHasBooks_ReturnsBadRequest()
+        {
+            // Arrange
+            var authorId = 12;
+            _mockRepository.Setup(r => r.GetById(authorId)).Returns(new Author { Id = authorId, Name = "Test" });
+            _mockRepository.Setup(r => r.HasBooks(authorId)).Returns(true);
+
+            // Act
+            var result = _controller.Delete(authorId);
+
+            // Assert
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Cannot delete an author with associated books.", badRequest.Value);
+        }
+
+        [Fact]
+        public void Delete_WhenAuthorHasNoBooks_ReturnsNoContent()
+        {
+            // Arrange
+            var authorId = 14;
+            _mockRepository.Setup(r => r.GetById(authorId)).Returns(new Author { Id = authorId, Name = "Test" });
+            _mockRepository.Setup(r => r.HasBooks(authorId)).Returns(false);
+
+            // Act
+            var result = _controller.Delete(authorId);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+            _mockRepository.Verify(r => r.Remove(authorId), Times.Once);
+        }
     }
 }

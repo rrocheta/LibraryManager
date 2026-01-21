@@ -74,5 +74,28 @@ namespace LibraryManager.API.Controllers
             var result = new AuthorDto { Id = createdAuthor.Id, Name = createdAuthor.Name };
             return CreatedAtAction(nameof(GetById), new { id = createdAuthor.Id }, result);
         }
+
+        /// <summary>
+        /// Deletes an author by ID.
+        /// </summary>
+        /// <param name="id">Author identifier.</param>
+        /// <returns>204 No Content on success, 400 Bad Request if books exist, or 404 Not Found if missing.</returns>
+        [HttpDelete("{id}")]
+        public ActionResult Delete(int id)
+        {
+            var existingAuthor = _authorRepository.GetById(id);
+            if (existingAuthor == null)
+            {
+                return NotFound();
+            }
+
+            if (_authorRepository.HasBooks(id))
+            {
+                return BadRequest("Cannot delete an author with associated books.");
+            }
+
+            _authorRepository.Remove(id);
+            return NoContent();
+        }
     }
 }

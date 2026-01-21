@@ -27,6 +27,19 @@ namespace LibraryManager.API.Repositories
         /// <param name="author">The author to add.</param>
         /// <returns>The created <see cref="Author"/>.</returns>
         Author Add(Author author);
+
+        /// <summary>
+        /// Checks whether the author has any associated books.
+        /// </summary>
+        /// <param name="id">Author identifier.</param>
+        /// <returns>True when at least one book is linked to the author.</returns>
+        bool HasBooks(int id);
+
+        /// <summary>
+        /// Removes an author by its ID.
+        /// </summary>
+        /// <param name="id">Author identifier.</param>
+        void Remove(int id);
     }
 
 }

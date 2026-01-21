@@ -45,5 +45,29 @@ namespace LibraryManager.API.Repositories
             _dbContext.SaveChanges();
             return publisher;
         }
+
+        /// <summary>
+        /// Checks whether a publisher has any associated books.
+        /// </summary>
+        /// <param name="id">Publisher identifier.</param>
+        /// <returns>True when at least one book is linked to the publisher.</returns>
+        public bool HasBooks(int id)
+        {
+            return _dbContext.Books.Any(book => book.PublisherId == id);
+        }
+
+        /// <summary>
+        /// Removes a publisher from the database by its identifier.
+        /// </summary>
+        /// <param name="id">Publisher identifier.</param>
+        public void Remove(int id)
+        {
+            var publisher = _dbContext.Publishers.Find(id);
+            if (publisher != null)
+            {
+                _dbContext.Publishers.Remove(publisher);
+                _dbContext.SaveChanges();
+            }
+        }
     }
 }

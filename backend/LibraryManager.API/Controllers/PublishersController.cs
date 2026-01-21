@@ -77,5 +77,28 @@ namespace LibraryManager.API.Controllers
             var result = new PublisherDto { Id = createdPublisher.Id, Name = createdPublisher.Name };
             return CreatedAtAction(nameof(GetById), new { id = createdPublisher.Id }, result);
         }
+
+        /// <summary>
+        /// Deletes a publisher by ID.
+        /// </summary>
+        /// <param name="id">Publisher identifier.</param>
+        /// <returns>204 No Content on success, 400 Bad Request if books exist, or 404 Not Found if missing.</returns>
+        [HttpDelete("{id}")]
+        public ActionResult Delete(int id)
+        {
+            var existingPublisher = _publisherRepository.GetById(id);
+            if (existingPublisher == null)
+            {
+                return NotFound();
+            }
+
+            if (_publisherRepository.HasBooks(id))
+            {
+                return BadRequest("Cannot delete a publisher with associated books.");
+            }
+
+            _publisherRepository.Remove(id);
+            return NoContent();
+        }
     }
 }

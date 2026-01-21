@@ -56,6 +56,22 @@ export default function PublishersPage() {
       .catch((err) => setError(err.message));
   };
 
+  const deletePublisher = (publisherId) => {
+    setError(null);
+    setSuccessMessage(null);
+    const publisher = publishers.find((item) => item.id === publisherId);
+    if (!publisher) return;
+    if (!window.confirm(`Delete "${publisher.name}"?`)) return;
+
+    api
+      .del(`/api/publishers/${publisherId}`)
+      .then(() => {
+        setPublishers((prev) => prev.filter((item) => item.id !== publisherId));
+        setSuccessMessage("Publisher deleted successfully.");
+      })
+      .catch((err) => setError(err.message));
+  };
+
   if (loading) return <StatusMessage>Loading publishers...</StatusMessage>;
 
   return (
@@ -105,6 +121,14 @@ export default function PublishersPage() {
                 <div className="book-meta">
                   <div className="book-title">{publisher.name}</div>
                   <div className="book-subtitle">ID: {publisher.id}</div>
+                </div>
+                <div className="book-actions">
+                  <button
+                    onClick={() => deletePublisher(publisher.id)}
+                    className="btn btn-danger"
+                  >
+                    Delete
+                  </button>
                 </div>
               </li>
             ))}

@@ -27,5 +27,18 @@ namespace LibraryManager.API.Repositories
         /// <param name="publisher">The publisher to add.</param>
         /// <returns>The created <see cref="Publisher"/>.</returns>
         Publisher Add(Publisher publisher);
+
+        /// <summary>
+        /// Checks whether the publisher has any associated books.
+        /// </summary>
+        /// <param name="id">Publisher identifier.</param>
+        /// <returns>True when at least one book is linked to the publisher.</returns>
+        bool HasBooks(int id);
+
+        /// <summary>
+        /// Removes a publisher by its ID.
+        /// </summary>
+        /// <param name="id">Publisher identifier.</param>
+        void Remove(int id);
     }
 }

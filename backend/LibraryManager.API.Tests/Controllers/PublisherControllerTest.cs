@@ -67,5 +67,51 @@ namespace LibraryManager.API.Tests.Controllers
             Assert.Equal("No publishers found.", notFoundResult.Value);
 
         }
+
+        [Fact]
+        public void Delete_WhenPublisherMissing_ReturnsNotFound()
+        {
+            // Arrange
+            var publisherId = 10;
+            _mockRepository.Setup(r => r.GetById(publisherId)).Returns((Publisher)null);
+
+            // Act
+            var result = _controller.Delete(publisherId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public void Delete_WhenPublisherHasBooks_ReturnsBadRequest()
+        {
+            // Arrange
+            var publisherId = 12;
+            _mockRepository.Setup(r => r.GetById(publisherId)).Returns(new Publisher { Id = publisherId, Name = "Test" });
+            _mockRepository.Setup(r => r.HasBooks(publisherId)).Returns(true);
+
+            // Act
+            var result = _controller.Delete(publisherId);
+
+            // Assert
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.Equal("Cannot delete a publisher with associated books.", badRequest.Value);
+        }
+
+        [Fact]
+        public void Delete_WhenPublisherHasNoBooks_ReturnsNoContent()
+        {
+            // Arrange
+            var publisherId = 14;
+            _mockRepository.Setup(r => r.GetById(publisherId)).Returns(new Publisher { Id = publisherId, Name = "Test" });
+            _mockRepository.Setup(r => r.HasBooks(publisherId)).Returns(false);
+
+            // Act
+            var result = _controller.Delete(publisherId);
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+            _mockRepository.Verify(r => r.Remove(publisherId), Times.Once);
+        }
     }
 }
